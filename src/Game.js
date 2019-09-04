@@ -97,7 +97,12 @@ class Game extends React.Component {
     const moves = history.map((step, index) => {
       const description = index ? 'Go to'  : 'Go to Game Start';
       return (
-          <div key={index} className="collection-item row">
+          <div
+            key={index}
+            className={this.state.stepNumber === index ?
+                      "collection-item row active" :
+                      "collection-item row"}
+          >
             <div className="col s6 m6 l6 xl6">
               <h6>Move #{index}</h6>
             </div>
