@@ -54,7 +54,8 @@ class Game extends React.Component {
         lastMove: null
       }],
       xIsNext: true,
-      stepNumber: 0
+      stepNumber: 0,
+      isAsc: true
     }
   }
 
@@ -79,13 +80,19 @@ class Game extends React.Component {
         lastMove: i
       }]),
       xIsNext: !this.state.xIsNext,
-      stepNumber: history.length,
+      stepNumber: history.length
     });
   }
 
+  handleChange() {
+    console.log('entro');
+    this.setState({
+      isAsc: !this.state.isAsc
+    });
+  }
 
   render() {
-    const history = this.state.history;
+    let history = this.state.history;
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
     let status; 
@@ -94,17 +101,24 @@ class Game extends React.Component {
     } else {
       status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
     }
+
+    if(!this.state.isAsc) {
+      history =  history.slice().reverse();
+      console.log(history)
+    } 
     const moves = history.map((step, index) => {
-      const description = index ? 'Go to'  : 'Go to Game Start';
+      console.log(step);
+      const description = step.lastMove ? 'Go to'  : 'Go to Game Start';
+      const noMove = this.state.isAsc ? index : (history.length - 1) - index;
       return (
           <div
             key={index}
-            className={this.state.stepNumber === index ?
-                      "collection-item row active" :
+            className={this.state.stepNumber === noMove ?
+                      "collection-item row teal lighten-5" :
                       "collection-item row"}
           >
             <div className="col s6 m6 l6 xl6">
-              <h6>Move #{index}</h6>
+              <h6>Move #{noMove} </h6>
             </div>
             <div className="col s6 m6 l6 xl6">
               <button
@@ -139,6 +153,15 @@ class Game extends React.Component {
             <div className="collection">
               <div className="collection-item center">
                 <h4>History</h4>
+                {/* Switch for order move's list */}
+                <div className="switch">
+                  <label>
+                    Asc
+                    <input type="checkbox" onChange={() => this.handleChange()}/>
+                    <span className="lever"></span>
+                    Desc
+                  </label>
+                </div>
               </div>
               {moves}
             </div>
