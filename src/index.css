@@ -21,23 +21,23 @@ ol, ul {
   background: #fff;
   border: 1px solid #999;
   float: left;
-  font-size: 24px;
+  font-size: 100px;
   font-weight: bold;
   line-height: 34px;
-  height: 34px;
+  height: 120px;
   margin-right: -1px;
   margin-top: -1px;
   padding: 0;
   text-align: center;
-  width: 34px;
+  width: 120px;
 }
 
 .square:focus {
-  outline: none;
+  outline: none !important;
 }
 
 .kbd-navigation .square:focus {
-  background: #ddd;
+  background: #ddd !important;
 }
 
 .game {
@@ -47,4 +47,8 @@ ol, ul {
 
 .game-info {
   margin-left: 20px;
+}
+
+.game-board {
+  min-width: 600px;
 }
