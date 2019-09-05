@@ -99,14 +99,18 @@ class Game extends React.Component {
     if (winner) {
       status = 'Winner: ' + winner;
     } else {
-      status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      if (calculateBoardFill(current.squares)) {
+        status = "It's a tied game";
+      } else {
+        status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');        
+      }
     }
 
     if(!this.state.isAsc) {
       history =  history.slice().reverse();
     } 
     const moves = history.map((step, index) => {
-      const description = step.lastMove ? 'Go to'  : 'Go to Game Start';
+      const description = step.lastMove !== null ? 'Go to'  : 'Go to Game Start';
       const noMove = this.state.isAsc ? index : (history.length - 1) - index;
       return (
           <div
@@ -197,4 +201,13 @@ function calculateWinner(squares) {
     winner: null,
     line: []
   }
+}
+
+function calculateBoardFill(squares) {
+  for(let i = 0; i < 9; i ++) {
+    if (squares[i] === null) {
+      return false;
+    }
+  }
+  return true;
 }
