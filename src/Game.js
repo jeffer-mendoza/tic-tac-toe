@@ -45,18 +45,76 @@ class Board extends React.Component {
   }
 }
 
+class History extends React.Component {
+  render() {
+    let history = this.props.history.slice();
+    if(!this.props.isAsc) {
+      history =  history.reverse();
+    } 
+    const moves = history.map((step, index) => {
+      const description = step.lastMove !== null ? 'Go to'  : 'Go to Game Start';
+      /* Identify the movement number, according to the order (ASC/DESC) */
+      const noMove = this.props.isAsc ? index : (history.length - 1) - index;
+      const rowColor = this.props.stepNumber === noMove ? 'teal lighten-5' : 'white';
+      return (
+        <div
+          key={index}
+          className={`collection-item row ${rowColor}`}
+        >
+        <div className="col s6 m6 l6 xl6">
+          <h6>Move #{noMove} </h6>
+        </div>
+        <div className="col s6 m6 l6 xl6">
+          <button
+          className="waves-effect waves-light btn"
+          onClick={() => this.props.onJumpTo(index)}
+          >
+            {description}
+          </button>
+        </div>
+        </div>
+      );
+    });    
+    return (
+      <div className="col s12 m12 l4 xl4">
+        <div className="collection">
+          <div className="collection-item center">
+            <h4>History</h4>
+            {/* Switch for order move's list */}
+            <div className="switch">
+              <label>
+                Asc
+                <input type="checkbox" onChange={() => this.props.onChange}/>
+                <span className="lever"></span>
+                Desc
+              </label>
+            </div>
+          </div>
+          {moves}
+        </div>
+      </div> 
+    ); 
+  }
+}
+
+const initialState = {
+  history: [{
+    squares: Array(9).fill(null),
+    lastMove: null
+  }],
+  xIsNext: true,
+  stepNumber: 0,
+  isAsc: true
+}
+
 class Game extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      history: [{
-        squares: Array(9).fill(null),
-        lastMove: null
-      }],
-      xIsNext: true,
-      stepNumber: 0,
-      isAsc: true
-    }
+    this.state = initialState;
+  }
+
+  resetState() {
+    this.setState(initialState);
   }
 
   jumpTo(step) {
@@ -96,49 +154,34 @@ class Game extends React.Component {
     const finalMove = calculateWinner(current.squares); 
     const winner = finalMove.winner;
     let status; 
+    let finished = false;
     if (winner) {
       status = 'Winner: ' + winner;
+      finished = true;
     } else {
       if (calculateBoardFill(current.squares)) {
         status = "It's a tied game";
+        finished = true;
       } else {
         status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');        
       }
     }
 
-    if(!this.state.isAsc) {
-      history =  history.slice().reverse();
-    } 
-    const moves = history.map((step, index) => {
-      const description = step.lastMove !== null ? 'Go to'  : 'Go to Game Start';
-      const noMove = this.state.isAsc ? index : (history.length - 1) - index;
-      return (
-          <div
-            key={index}
-            className={this.state.stepNumber === noMove ?
-                      "collection-item row teal lighten-5" :
-                      "collection-item row"}
-          >
-            <div className="col s6 m6 l6 xl6">
-              <h6>Move #{noMove} </h6>
-            </div>
-            <div className="col s6 m6 l6 xl6">
-              <button
-              className="waves-effect waves-light btn"
-              onClick={() => this.jumpTo(index)}
-              >
-                {description}
-              </button>
-            </div>
-          </div>
+    let reset = null;
+    if (finished) {
+      reset = (
+        <button className="waves-effect waves-light btn" onClick={() => this.resetState()}>
+          Reset Game
+        </button>
       );
-    });
+    }
 
     return (
       <div>
         <div className="row">
           <div className="col l12 xl12">
             <h1>{status}</h1>
+            {reset}
           </div>
         </div>
         <div className="row">
@@ -151,24 +194,13 @@ class Game extends React.Component {
                 onClick={(i) => this.handleClick(i)} />
             </div>
           </div>
-
-          <div className="col s12 m12 l4 xl4">
-            <div className="collection">
-              <div className="collection-item center">
-                <h4>History</h4>
-                {/* Switch for order move's list */}
-                <div className="switch">
-                  <label>
-                    Asc
-                    <input type="checkbox" onChange={() => this.handleChange()}/>
-                    <span className="lever"></span>
-                    Desc
-                  </label>
-                </div>
-              </div>
-              {moves}
-            </div>
-          </div>        
+          <History
+            history={history}
+            isAsc={this.state.isAsc}
+            stepNumber={this.stepNumber}
+            onJumpTo={(step) => this.jumpTo(step)} 
+            onChangeOrder={() => this.handleChange()}
+          />       
         </div>
       </div>
     );
