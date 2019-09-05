@@ -32,7 +32,7 @@ ol, ul {
   width: 120px;
 }
 
-.square:focus {
+.square:focus, .square:active {
   outline: none !important;
 }
 

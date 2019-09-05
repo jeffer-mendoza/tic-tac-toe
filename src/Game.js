@@ -4,7 +4,7 @@ import './index.css';
 function Square(props) {
   return (
     <button 
-      className={props.isLastMove ? "square teal lighten-2" : "square" }
+      className={props.isHighlight ? "square teal lighten-2" : "square white" }
       onClick={props.onClick}
     >
       {props.value}
@@ -19,7 +19,7 @@ class Board extends React.Component {
          key={i}
          value={this.props.squares[i]}
          onClick={() => this.props.onClick(i)}
-         isLastMove={this.props.lastMove === i} />
+         isHighlight={this.props.lastMove === i || this.props.lineWinner.indexOf(i) !== -1} />
     );
   }
 
@@ -70,7 +70,7 @@ class Game extends React.Component {
     const history = this.state.history.slice(0, this.state.stepNumber + 1); 
     const current = history[history.length - 1];
     const squares = current.squares.slice();
-    if (calculateWinner(squares) || squares[i]) {
+    if (calculateWinner(squares).winner || squares[i]) {
       return;
     }
     squares[i] = this.state.xIsNext ? 'X' : 'O';
@@ -85,7 +85,6 @@ class Game extends React.Component {
   }
 
   handleChange() {
-    console.log('entro');
     this.setState({
       isAsc: !this.state.isAsc
     });
@@ -94,7 +93,8 @@ class Game extends React.Component {
   render() {
     let history = this.state.history;
     const current = history[this.state.stepNumber];
-    const winner = calculateWinner(current.squares);
+    const finalMove = calculateWinner(current.squares); 
+    const winner = finalMove.winner;
     let status; 
     if (winner) {
       status = 'Winner: ' + winner;
@@ -104,10 +104,8 @@ class Game extends React.Component {
 
     if(!this.state.isAsc) {
       history =  history.slice().reverse();
-      console.log(history)
     } 
     const moves = history.map((step, index) => {
-      console.log(step);
       const description = step.lastMove ? 'Go to'  : 'Go to Game Start';
       const noMove = this.state.isAsc ? index : (history.length - 1) - index;
       return (
@@ -145,6 +143,7 @@ class Game extends React.Component {
               <Board
                 squares={current.squares}
                 lastMove={current.lastMove}
+                lineWinner={finalMove.line}
                 onClick={(i) => this.handleClick(i)} />
             </div>
           </div>
@@ -188,8 +187,14 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
+      return {
+        winner: squares[a],
+        line: lines[i]
+      }
+    } 
   }
-  return null;
+  return {
+    winner: null,
+    line: []
+  }
 }
